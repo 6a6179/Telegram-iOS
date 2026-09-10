@@ -246,7 +246,7 @@ final class PeerSelectionControllerNode: ASDisplayNode {
             self.chatListNode = nil
         } else {
             self.mainContainerNode = nil
-            self.chatListNode = ChatListNode(context: context, location: chatListLocation, previewing: false, fillPreloadItems: false, mode: chatListMode, theme: self.presentationData.theme, fontSize: presentationData.listsFontSize, strings: presentationData.strings, dateTimeFormat: presentationData.dateTimeFormat, nameSortOrder: presentationData.nameSortOrder, nameDisplayOrder: presentationData.nameDisplayOrder, showUsernameInsteadOfName: presentationData.showUsernameInsteadOfName, animationCache: self.animationCache, animationRenderer: self.animationRenderer, disableAnimations: true, isInlineMode: false, autoSetReady: true, isMainTab: false)
+            self.chatListNode = ChatListNode(context: context, location: chatListLocation, previewing: false, fillPreloadItems: false, mode: chatListMode, theme: self.presentationData.theme, fontSize: presentationData.listsFontSize, strings: presentationData.strings, dateTimeFormat: presentationData.dateTimeFormat, nameSortOrder: presentationData.nameSortOrder, nameDisplayOrder: presentationData.nameDisplayOrder, usernameDisplay: presentationData.usernameDisplay, animationCache: self.animationCache, animationRenderer: self.animationRenderer, disableAnimations: true, isInlineMode: false, autoSetReady: true, isMainTab: false)
             if let multipleSelectionLimit = controller.multipleSelectionLimit {
                 self.chatListNode?.selectionLimit = multipleSelectionLimit
             }
@@ -1076,7 +1076,7 @@ final class PeerSelectionControllerNode: ASDisplayNode {
     private func updateThemeAndStrings() {
         self.backgroundColor = self.presentationData.theme.chatList.backgroundColor
         self.searchDisplayController?.updatePresentationData(self.presentationData)
-        self.chatListNode?.updateThemeAndStrings(theme: self.presentationData.theme, fontSize: self.presentationData.listsFontSize, strings: self.presentationData.strings, dateTimeFormat: self.presentationData.dateTimeFormat, nameSortOrder: self.presentationData.nameSortOrder, nameDisplayOrder: self.presentationData.nameDisplayOrder, showUsernameInsteadOfName: self.presentationData.showUsernameInsteadOfName, disableAnimations: true)
+        self.chatListNode?.updateThemeAndStrings(theme: self.presentationData.theme, fontSize: self.presentationData.listsFontSize, strings: self.presentationData.strings, dateTimeFormat: self.presentationData.dateTimeFormat, nameSortOrder: self.presentationData.nameSortOrder, nameDisplayOrder: self.presentationData.nameDisplayOrder, usernameDisplay: self.presentationData.usernameDisplay, disableAnimations: true)
 
         self.updateChatPresentationInterfaceState({ $0.updatedTheme(self.presentationData.theme) })
 

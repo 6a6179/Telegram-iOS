@@ -54,7 +54,7 @@ extension ChatControllerImpl {
                                 strings: self.presentationData.strings,
                                 dateTimeFormat: self.presentationData.dateTimeFormat,
                                 nameDisplayOrder: self.presentationData.nameDisplayOrder,
-                                showUsernameInsteadOfName: self.presentationData.showUsernameInsteadOfName,
+                                usernameDisplay: self.presentationData.usernameDisplay,
                                 content: .custom(title: [ChatTitleContent.TitleTextItem(id: AnyHashable(0), content: .text("\(value)"))], subtitle: nil, isEnabled: false),
                                 transition: .immediate
                             )
@@ -107,7 +107,7 @@ extension ChatControllerImpl {
                         strings: self.presentationData.strings,
                         dateTimeFormat: self.presentationData.dateTimeFormat,
                         nameDisplayOrder: self.presentationData.nameDisplayOrder,
-                        showUsernameInsteadOfName: self.presentationData.showUsernameInsteadOfName,
+                        usernameDisplay: self.presentationData.usernameDisplay,
                         content: .custom(title: [ChatTitleContent.TitleTextItem(id: AnyHashable(0), content: .text(value.isEmpty ? self.presentationData.strings.Business_Links_EditLinkTitle : value))], subtitle: linkUrl, isEnabled: false),
                         transition: .immediate
                     )

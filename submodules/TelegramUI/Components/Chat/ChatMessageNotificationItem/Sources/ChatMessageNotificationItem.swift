@@ -120,7 +120,7 @@ final class ChatMessageNotificationItemNode: NotificationItemNode {
         }
         let presentationData = item.context.sharedContext.currentPresentationData.with { $0 }
         let peerTitle: (EnginePeer) -> String = { peer in
-            if presentationData.showUsernameInsteadOfName, case let .user(user) = peer, let username = user.addressName, !username.isEmpty {
+            if let username = presentationData.usernameDisplay.username(for: peer) {
                 return "@\(username)"
             }
             return peer.displayTitle(strings: item.strings, displayOrder: item.nameDisplayOrder)

@@ -583,6 +583,48 @@ public struct PresentationChatBubbleSettings: Codable, Equatable {
     }
 }
 
+public struct PresentationUsernameDisplaySettings: Equatable {
+    public var users: Bool
+    public var channels: Bool
+    
+    public static var `default`: PresentationUsernameDisplaySettings = PresentationUsernameDisplaySettings(users: false, channels: false)
+    
+    public init(users: Bool, channels: Bool) {
+        self.users = users
+        self.channels = channels
+    }
+    
+    public func withUpdatedUsers(_ users: Bool) -> PresentationUsernameDisplaySettings {
+        return PresentationUsernameDisplaySettings(users: users, channels: self.channels)
+    }
+    
+    public func withUpdatedChannels(_ channels: Bool) -> PresentationUsernameDisplaySettings {
+        return PresentationUsernameDisplaySettings(users: self.users, channels: channels)
+    }
+    
+    public func username(for peer: EnginePeer) -> String? {
+        let username: String?
+        switch peer {
+        case let .user(user):
+            guard self.users else {
+                return nil
+            }
+            username = user.addressName
+        case let .channel(channel):
+            guard self.channels, case .broadcast = channel.info else {
+                return nil
+            }
+            username = channel.addressName
+        default:
+            return nil
+        }
+        if let username, !username.isEmpty {
+            return username
+        }
+        return nil
+    }
+}
+
 public struct PresentationThemeSettings: Codable {
     private struct DictionaryKey: Codable, Hashable {
         var key: Int64
@@ -615,7 +657,7 @@ public struct PresentationThemeSettings: Codable {
     public var automaticThemeSwitchSetting: AutomaticThemeSwitchSetting
     public var largeEmoji: Bool
     public var reduceMotion: Bool
-    public var showUsernameInsteadOfName: Bool
+    public var usernameDisplay: PresentationUsernameDisplaySettings
     
     private func wallpaperResources(_ wallpaper: TelegramWallpaper) -> [EngineRawMediaResourceId] {
         switch wallpaper {
@@ -653,10 +695,10 @@ public struct PresentationThemeSettings: Codable {
     }
     
     public static var defaultSettings: PresentationThemeSettings {
-        return PresentationThemeSettings(theme: .builtin(.dayClassic), themePreferredBaseTheme: [:], themeSpecificAccentColors: [:], themeSpecificChatWallpapers: [:], useSystemFont: true, fontSize: .regular, listsFontSize: .regular, chatBubbleSettings: .default, automaticThemeSwitchSetting: AutomaticThemeSwitchSetting(force: false, trigger: .system, theme: .builtin(.night)), largeEmoji: true, reduceMotion: false, showUsernameInsteadOfName: false)
+        return PresentationThemeSettings(theme: .builtin(.dayClassic), themePreferredBaseTheme: [:], themeSpecificAccentColors: [:], themeSpecificChatWallpapers: [:], useSystemFont: true, fontSize: .regular, listsFontSize: .regular, chatBubbleSettings: .default, automaticThemeSwitchSetting: AutomaticThemeSwitchSetting(force: false, trigger: .system, theme: .builtin(.night)), largeEmoji: true, reduceMotion: false, usernameDisplay: .default)
     }
     
-    public init(theme: PresentationThemeReference, themePreferredBaseTheme: [Int64: TelegramBaseTheme], themeSpecificAccentColors: [Int64: PresentationThemeAccentColor], themeSpecificChatWallpapers: [Int64: TelegramWallpaper], useSystemFont: Bool, fontSize: PresentationFontSize, listsFontSize: PresentationFontSize, chatBubbleSettings: PresentationChatBubbleSettings, automaticThemeSwitchSetting: AutomaticThemeSwitchSetting, largeEmoji: Bool, reduceMotion: Bool, showUsernameInsteadOfName: Bool) {
+    public init(theme: PresentationThemeReference, themePreferredBaseTheme: [Int64: TelegramBaseTheme], themeSpecificAccentColors: [Int64: PresentationThemeAccentColor], themeSpecificChatWallpapers: [Int64: TelegramWallpaper], useSystemFont: Bool, fontSize: PresentationFontSize, listsFontSize: PresentationFontSize, chatBubbleSettings: PresentationChatBubbleSettings, automaticThemeSwitchSetting: AutomaticThemeSwitchSetting, largeEmoji: Bool, reduceMotion: Bool, usernameDisplay: PresentationUsernameDisplaySettings) {
         self.theme = theme
         self.themePreferredBaseTheme = themePreferredBaseTheme
         self.themeSpecificAccentColors = themeSpecificAccentColors
@@ -668,7 +710,7 @@ public struct PresentationThemeSettings: Codable {
         self.automaticThemeSwitchSetting = automaticThemeSwitchSetting
         self.largeEmoji = largeEmoji
         self.reduceMotion = reduceMotion
-        self.showUsernameInsteadOfName = showUsernameInsteadOfName
+        self.usernameDisplay = usernameDisplay
     }
     
     public init(from decoder: Decoder) throws {
@@ -715,7 +757,10 @@ public struct PresentationThemeSettings: Codable {
 
         self.largeEmoji = try container.decodeIfPresent(Bool.self, forKey: "largeEmoji") ?? true
         self.reduceMotion = try container.decodeIfPresent(Bool.self, forKey: "reduceMotion") ?? false
-        self.showUsernameInsteadOfName = try container.decodeIfPresent(Bool.self, forKey: "showUsernameInsteadOfName") ?? false
+        self.usernameDisplay = PresentationUsernameDisplaySettings(
+            users: try container.decodeIfPresent(Bool.self, forKey: "showUsernameInsteadOfName") ?? false,
+            channels: try container.decodeIfPresent(Bool.self, forKey: "showChannelUsernameInsteadOfName") ?? false
+        )
     }
     
     public func encode(to encoder: Encoder) throws {
@@ -748,55 +793,56 @@ public struct PresentationThemeSettings: Codable {
         try container.encode(self.automaticThemeSwitchSetting, forKey: "automaticThemeSwitchSetting")
         try container.encode(self.largeEmoji, forKey: "largeEmoji")
         try container.encode(self.reduceMotion, forKey: "reduceMotion")
-        try container.encode(self.showUsernameInsteadOfName, forKey: "showUsernameInsteadOfName")
+        try container.encode(self.usernameDisplay.users, forKey: "showUsernameInsteadOfName")
+        try container.encode(self.usernameDisplay.channels, forKey: "showChannelUsernameInsteadOfName")
     }
     
     public static func ==(lhs: PresentationThemeSettings, rhs: PresentationThemeSettings) -> Bool {
-        return lhs.theme == rhs.theme && lhs.themePreferredBaseTheme == rhs.themePreferredBaseTheme && lhs.themeSpecificAccentColors == rhs.themeSpecificAccentColors && lhs.themeSpecificChatWallpapers == rhs.themeSpecificChatWallpapers && lhs.useSystemFont == rhs.useSystemFont && lhs.fontSize == rhs.fontSize && lhs.listsFontSize == rhs.listsFontSize && lhs.chatBubbleSettings == rhs.chatBubbleSettings && lhs.automaticThemeSwitchSetting == rhs.automaticThemeSwitchSetting && lhs.largeEmoji == rhs.largeEmoji && lhs.reduceMotion == rhs.reduceMotion && lhs.showUsernameInsteadOfName == rhs.showUsernameInsteadOfName
+        return lhs.theme == rhs.theme && lhs.themePreferredBaseTheme == rhs.themePreferredBaseTheme && lhs.themeSpecificAccentColors == rhs.themeSpecificAccentColors && lhs.themeSpecificChatWallpapers == rhs.themeSpecificChatWallpapers && lhs.useSystemFont == rhs.useSystemFont && lhs.fontSize == rhs.fontSize && lhs.listsFontSize == rhs.listsFontSize && lhs.chatBubbleSettings == rhs.chatBubbleSettings && lhs.automaticThemeSwitchSetting == rhs.automaticThemeSwitchSetting && lhs.largeEmoji == rhs.largeEmoji && lhs.reduceMotion == rhs.reduceMotion && lhs.usernameDisplay == rhs.usernameDisplay
     }
     
     public func withUpdatedTheme(_ theme: PresentationThemeReference) -> PresentationThemeSettings {
-        return PresentationThemeSettings(theme: theme, themePreferredBaseTheme: self.themePreferredBaseTheme, themeSpecificAccentColors: self.themeSpecificAccentColors, themeSpecificChatWallpapers: self.themeSpecificChatWallpapers, useSystemFont: self.useSystemFont, fontSize: self.fontSize, listsFontSize: self.listsFontSize, chatBubbleSettings: self.chatBubbleSettings, automaticThemeSwitchSetting: self.automaticThemeSwitchSetting, largeEmoji: self.largeEmoji, reduceMotion: self.reduceMotion, showUsernameInsteadOfName: self.showUsernameInsteadOfName)
+        return PresentationThemeSettings(theme: theme, themePreferredBaseTheme: self.themePreferredBaseTheme, themeSpecificAccentColors: self.themeSpecificAccentColors, themeSpecificChatWallpapers: self.themeSpecificChatWallpapers, useSystemFont: self.useSystemFont, fontSize: self.fontSize, listsFontSize: self.listsFontSize, chatBubbleSettings: self.chatBubbleSettings, automaticThemeSwitchSetting: self.automaticThemeSwitchSetting, largeEmoji: self.largeEmoji, reduceMotion: self.reduceMotion, usernameDisplay: self.usernameDisplay)
     }
     
     public func withUpdatedThemePreferredBaseTheme(_ themePreferredBaseTheme: [Int64: TelegramBaseTheme]) -> PresentationThemeSettings {
-        return PresentationThemeSettings(theme: self.theme, themePreferredBaseTheme: themePreferredBaseTheme, themeSpecificAccentColors: self.themeSpecificAccentColors, themeSpecificChatWallpapers: self.themeSpecificChatWallpapers, useSystemFont: self.useSystemFont, fontSize: self.fontSize, listsFontSize: self.listsFontSize, chatBubbleSettings: self.chatBubbleSettings, automaticThemeSwitchSetting: self.automaticThemeSwitchSetting, largeEmoji: self.largeEmoji, reduceMotion: self.reduceMotion, showUsernameInsteadOfName: self.showUsernameInsteadOfName)
+        return PresentationThemeSettings(theme: self.theme, themePreferredBaseTheme: themePreferredBaseTheme, themeSpecificAccentColors: self.themeSpecificAccentColors, themeSpecificChatWallpapers: self.themeSpecificChatWallpapers, useSystemFont: self.useSystemFont, fontSize: self.fontSize, listsFontSize: self.listsFontSize, chatBubbleSettings: self.chatBubbleSettings, automaticThemeSwitchSetting: self.automaticThemeSwitchSetting, largeEmoji: self.largeEmoji, reduceMotion: self.reduceMotion, usernameDisplay: self.usernameDisplay)
     }
     
     public func withUpdatedThemeSpecificAccentColors(_ themeSpecificAccentColors: [Int64: PresentationThemeAccentColor]) -> PresentationThemeSettings {
-        return PresentationThemeSettings(theme: self.theme, themePreferredBaseTheme: self.themePreferredBaseTheme, themeSpecificAccentColors: themeSpecificAccentColors, themeSpecificChatWallpapers: self.themeSpecificChatWallpapers, useSystemFont: self.useSystemFont, fontSize: self.fontSize, listsFontSize: self.listsFontSize, chatBubbleSettings: self.chatBubbleSettings, automaticThemeSwitchSetting: self.automaticThemeSwitchSetting, largeEmoji: self.largeEmoji, reduceMotion: self.reduceMotion, showUsernameInsteadOfName: self.showUsernameInsteadOfName)
+        return PresentationThemeSettings(theme: self.theme, themePreferredBaseTheme: self.themePreferredBaseTheme, themeSpecificAccentColors: themeSpecificAccentColors, themeSpecificChatWallpapers: self.themeSpecificChatWallpapers, useSystemFont: self.useSystemFont, fontSize: self.fontSize, listsFontSize: self.listsFontSize, chatBubbleSettings: self.chatBubbleSettings, automaticThemeSwitchSetting: self.automaticThemeSwitchSetting, largeEmoji: self.largeEmoji, reduceMotion: self.reduceMotion, usernameDisplay: self.usernameDisplay)
     }
     
     public func withUpdatedThemeSpecificChatWallpapers(_ themeSpecificChatWallpapers: [Int64: TelegramWallpaper]) -> PresentationThemeSettings {
-        return PresentationThemeSettings(theme: self.theme, themePreferredBaseTheme: self.themePreferredBaseTheme, themeSpecificAccentColors: self.themeSpecificAccentColors, themeSpecificChatWallpapers: themeSpecificChatWallpapers, useSystemFont: self.useSystemFont, fontSize: self.fontSize, listsFontSize: self.listsFontSize, chatBubbleSettings: self.chatBubbleSettings, automaticThemeSwitchSetting: self.automaticThemeSwitchSetting, largeEmoji: self.largeEmoji, reduceMotion: self.reduceMotion, showUsernameInsteadOfName: self.showUsernameInsteadOfName)
+        return PresentationThemeSettings(theme: self.theme, themePreferredBaseTheme: self.themePreferredBaseTheme, themeSpecificAccentColors: self.themeSpecificAccentColors, themeSpecificChatWallpapers: themeSpecificChatWallpapers, useSystemFont: self.useSystemFont, fontSize: self.fontSize, listsFontSize: self.listsFontSize, chatBubbleSettings: self.chatBubbleSettings, automaticThemeSwitchSetting: self.automaticThemeSwitchSetting, largeEmoji: self.largeEmoji, reduceMotion: self.reduceMotion, usernameDisplay: self.usernameDisplay)
     }
     
     public func withUpdatedUseSystemFont(_ useSystemFont: Bool) -> PresentationThemeSettings {
-        return PresentationThemeSettings(theme: self.theme, themePreferredBaseTheme: self.themePreferredBaseTheme, themeSpecificAccentColors: self.themeSpecificAccentColors, themeSpecificChatWallpapers: self.themeSpecificChatWallpapers, useSystemFont: useSystemFont, fontSize: self.fontSize, listsFontSize: self.listsFontSize, chatBubbleSettings: self.chatBubbleSettings, automaticThemeSwitchSetting: self.automaticThemeSwitchSetting, largeEmoji: self.largeEmoji, reduceMotion: self.reduceMotion, showUsernameInsteadOfName: self.showUsernameInsteadOfName)
+        return PresentationThemeSettings(theme: self.theme, themePreferredBaseTheme: self.themePreferredBaseTheme, themeSpecificAccentColors: self.themeSpecificAccentColors, themeSpecificChatWallpapers: self.themeSpecificChatWallpapers, useSystemFont: useSystemFont, fontSize: self.fontSize, listsFontSize: self.listsFontSize, chatBubbleSettings: self.chatBubbleSettings, automaticThemeSwitchSetting: self.automaticThemeSwitchSetting, largeEmoji: self.largeEmoji, reduceMotion: self.reduceMotion, usernameDisplay: self.usernameDisplay)
     }
     
     public func withUpdatedFontSizes(fontSize: PresentationFontSize, listsFontSize: PresentationFontSize) -> PresentationThemeSettings {
-        return PresentationThemeSettings(theme: self.theme, themePreferredBaseTheme: self.themePreferredBaseTheme, themeSpecificAccentColors: self.themeSpecificAccentColors, themeSpecificChatWallpapers: self.themeSpecificChatWallpapers, useSystemFont: self.useSystemFont, fontSize: fontSize, listsFontSize: listsFontSize, chatBubbleSettings: self.chatBubbleSettings, automaticThemeSwitchSetting: self.automaticThemeSwitchSetting, largeEmoji: self.largeEmoji, reduceMotion: self.reduceMotion, showUsernameInsteadOfName: self.showUsernameInsteadOfName)
+        return PresentationThemeSettings(theme: self.theme, themePreferredBaseTheme: self.themePreferredBaseTheme, themeSpecificAccentColors: self.themeSpecificAccentColors, themeSpecificChatWallpapers: self.themeSpecificChatWallpapers, useSystemFont: self.useSystemFont, fontSize: fontSize, listsFontSize: listsFontSize, chatBubbleSettings: self.chatBubbleSettings, automaticThemeSwitchSetting: self.automaticThemeSwitchSetting, largeEmoji: self.largeEmoji, reduceMotion: self.reduceMotion, usernameDisplay: self.usernameDisplay)
     }
     
     public func withUpdatedChatBubbleSettings(_ chatBubbleSettings: PresentationChatBubbleSettings) -> PresentationThemeSettings {
-        return PresentationThemeSettings(theme: self.theme, themePreferredBaseTheme: self.themePreferredBaseTheme, themeSpecificAccentColors: self.themeSpecificAccentColors, themeSpecificChatWallpapers: self.themeSpecificChatWallpapers, useSystemFont: self.useSystemFont, fontSize: self.fontSize, listsFontSize: self.listsFontSize, chatBubbleSettings: chatBubbleSettings, automaticThemeSwitchSetting: self.automaticThemeSwitchSetting, largeEmoji: self.largeEmoji, reduceMotion: self.reduceMotion, showUsernameInsteadOfName: self.showUsernameInsteadOfName)
+        return PresentationThemeSettings(theme: self.theme, themePreferredBaseTheme: self.themePreferredBaseTheme, themeSpecificAccentColors: self.themeSpecificAccentColors, themeSpecificChatWallpapers: self.themeSpecificChatWallpapers, useSystemFont: self.useSystemFont, fontSize: self.fontSize, listsFontSize: self.listsFontSize, chatBubbleSettings: chatBubbleSettings, automaticThemeSwitchSetting: self.automaticThemeSwitchSetting, largeEmoji: self.largeEmoji, reduceMotion: self.reduceMotion, usernameDisplay: self.usernameDisplay)
     }
     
     public func withUpdatedAutomaticThemeSwitchSetting(_ automaticThemeSwitchSetting: AutomaticThemeSwitchSetting) -> PresentationThemeSettings {
-        return PresentationThemeSettings(theme: self.theme, themePreferredBaseTheme: self.themePreferredBaseTheme, themeSpecificAccentColors: self.themeSpecificAccentColors, themeSpecificChatWallpapers: self.themeSpecificChatWallpapers, useSystemFont: self.useSystemFont, fontSize: self.fontSize, listsFontSize: self.listsFontSize, chatBubbleSettings: self.chatBubbleSettings, automaticThemeSwitchSetting: automaticThemeSwitchSetting, largeEmoji: self.largeEmoji, reduceMotion: self.reduceMotion, showUsernameInsteadOfName: self.showUsernameInsteadOfName)
+        return PresentationThemeSettings(theme: self.theme, themePreferredBaseTheme: self.themePreferredBaseTheme, themeSpecificAccentColors: self.themeSpecificAccentColors, themeSpecificChatWallpapers: self.themeSpecificChatWallpapers, useSystemFont: self.useSystemFont, fontSize: self.fontSize, listsFontSize: self.listsFontSize, chatBubbleSettings: self.chatBubbleSettings, automaticThemeSwitchSetting: automaticThemeSwitchSetting, largeEmoji: self.largeEmoji, reduceMotion: self.reduceMotion, usernameDisplay: self.usernameDisplay)
     }
     
     public func withUpdatedLargeEmoji(_ largeEmoji: Bool) -> PresentationThemeSettings {
-        return PresentationThemeSettings(theme: self.theme, themePreferredBaseTheme: self.themePreferredBaseTheme, themeSpecificAccentColors: self.themeSpecificAccentColors, themeSpecificChatWallpapers: self.themeSpecificChatWallpapers, useSystemFont: self.useSystemFont, fontSize: self.fontSize, listsFontSize: self.listsFontSize, chatBubbleSettings: self.chatBubbleSettings, automaticThemeSwitchSetting: self.automaticThemeSwitchSetting, largeEmoji: largeEmoji, reduceMotion: self.reduceMotion, showUsernameInsteadOfName: self.showUsernameInsteadOfName)
+        return PresentationThemeSettings(theme: self.theme, themePreferredBaseTheme: self.themePreferredBaseTheme, themeSpecificAccentColors: self.themeSpecificAccentColors, themeSpecificChatWallpapers: self.themeSpecificChatWallpapers, useSystemFont: self.useSystemFont, fontSize: self.fontSize, listsFontSize: self.listsFontSize, chatBubbleSettings: self.chatBubbleSettings, automaticThemeSwitchSetting: self.automaticThemeSwitchSetting, largeEmoji: largeEmoji, reduceMotion: self.reduceMotion, usernameDisplay: self.usernameDisplay)
     }
     
     public func withUpdatedReduceMotion(_ reduceMotion: Bool) -> PresentationThemeSettings {
-        return PresentationThemeSettings(theme: self.theme, themePreferredBaseTheme: self.themePreferredBaseTheme, themeSpecificAccentColors: self.themeSpecificAccentColors, themeSpecificChatWallpapers: self.themeSpecificChatWallpapers, useSystemFont: self.useSystemFont, fontSize: self.fontSize, listsFontSize: self.listsFontSize, chatBubbleSettings: self.chatBubbleSettings, automaticThemeSwitchSetting: self.automaticThemeSwitchSetting, largeEmoji: self.largeEmoji, reduceMotion: reduceMotion, showUsernameInsteadOfName: self.showUsernameInsteadOfName)
+        return PresentationThemeSettings(theme: self.theme, themePreferredBaseTheme: self.themePreferredBaseTheme, themeSpecificAccentColors: self.themeSpecificAccentColors, themeSpecificChatWallpapers: self.themeSpecificChatWallpapers, useSystemFont: self.useSystemFont, fontSize: self.fontSize, listsFontSize: self.listsFontSize, chatBubbleSettings: self.chatBubbleSettings, automaticThemeSwitchSetting: self.automaticThemeSwitchSetting, largeEmoji: self.largeEmoji, reduceMotion: reduceMotion, usernameDisplay: self.usernameDisplay)
     }
     
-    public func withUpdatedShowUsernameInsteadOfName(_ showUsernameInsteadOfName: Bool) -> PresentationThemeSettings {
-        return PresentationThemeSettings(theme: self.theme, themePreferredBaseTheme: self.themePreferredBaseTheme, themeSpecificAccentColors: self.themeSpecificAccentColors, themeSpecificChatWallpapers: self.themeSpecificChatWallpapers, useSystemFont: self.useSystemFont, fontSize: self.fontSize, listsFontSize: self.listsFontSize, chatBubbleSettings: self.chatBubbleSettings, automaticThemeSwitchSetting: self.automaticThemeSwitchSetting, largeEmoji: self.largeEmoji, reduceMotion: self.reduceMotion, showUsernameInsteadOfName: showUsernameInsteadOfName)
+    public func withUpdatedUsernameDisplay(_ usernameDisplay: PresentationUsernameDisplaySettings) -> PresentationThemeSettings {
+        return PresentationThemeSettings(theme: self.theme, themePreferredBaseTheme: self.themePreferredBaseTheme, themeSpecificAccentColors: self.themeSpecificAccentColors, themeSpecificChatWallpapers: self.themeSpecificChatWallpapers, useSystemFont: self.useSystemFont, fontSize: self.fontSize, listsFontSize: self.listsFontSize, chatBubbleSettings: self.chatBubbleSettings, automaticThemeSwitchSetting: self.automaticThemeSwitchSetting, largeEmoji: self.largeEmoji, reduceMotion: self.reduceMotion, usernameDisplay: usernameDisplay)
     }
 }
 

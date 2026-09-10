@@ -1387,7 +1387,7 @@ private final class CommunityViewContentComponent: Component {
                 dateTimeFormat: presentationData.dateTimeFormat,
                 nameSortOrder: presentationData.nameSortOrder,
                 nameDisplayOrder: presentationData.nameDisplayOrder,
-                showUsernameInsteadOfName: presentationData.showUsernameInsteadOfName,
+                usernameDisplay: presentationData.usernameDisplay,
                 disableAnimations: true
             )
             let interaction = self.makeInteraction(component: component)

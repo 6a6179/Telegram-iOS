@@ -5,6 +5,7 @@ import Display
 import SwiftSignalKit
 import TelegramCore
 import TelegramPresentationData
+import TelegramUIPreferences
 import ItemListUI
 import PresentationDataUtils
 import AvatarNode
@@ -5918,7 +5919,7 @@ private class StarView: UIView {
 
 private extension EnginePeer {
     func chatListTitle(presentationData: ChatListPresentationData) -> String {
-        if presentationData.showUsernameInsteadOfName, case let .user(user) = self, let username = user.addressName, !username.isEmpty {
+        if let username = presentationData.usernameDisplay.username(for: self) {
             return "@\(username)"
         }
         return self.displayTitle(strings: presentationData.strings, displayOrder: presentationData.nameDisplayOrder)

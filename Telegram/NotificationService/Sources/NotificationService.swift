@@ -544,14 +544,14 @@ private struct NotificationContent: CustomStringConvertible {
         return string
     }
 
-    mutating func addSenderInfo(mediaBox: MediaBox, accountPeerId: PeerId, peer: Peer, topicTitle: String?, contactIdentifier: String?, isStory: Bool, showUsernameInsteadOfName: Bool) {
+    mutating func addSenderInfo(mediaBox: MediaBox, accountPeerId: PeerId, peer: Peer, topicTitle: String?, contactIdentifier: String?, isStory: Bool, usernameDisplay: PresentationUsernameDisplaySettings) {
         if #available(iOS 15.0, *) {
             let image = peerAvatar(mediaBox: mediaBox, accountPeerId: accountPeerId, peer: peer, isStory: isStory)
 
             self.senderImage = image
 
             var displayName: String = peer.debugDisplayTitle
-            if showUsernameInsteadOfName, let user = peer as? TelegramUser, let username = user.addressName, !username.isEmpty {
+            if let username = usernameDisplay.username(for: EnginePeer(peer)) {
                 displayName = "@\(username)"
             }
             if let topicTitle {
@@ -885,7 +885,7 @@ private final class NotificationServiceHandler {
             }
 
             let inAppNotificationSettings = sharedData.entries[ApplicationSpecificSharedDataKeys.inAppNotificationSettings]?.get(InAppNotificationSettings.self) ?? InAppNotificationSettings.defaultSettings
-            let showUsernameInsteadOfName = sharedData.entries[ApplicationSpecificSharedDataKeys.presentationThemeSettings]?.get(PresentationThemeSettings.self)?.showUsernameInsteadOfName ?? false
+            let usernameDisplay = sharedData.entries[ApplicationSpecificSharedDataKeys.presentationThemeSettings]?.get(PresentationThemeSettings.self)?.usernameDisplay ?? .default
             
             let voiceCallSettings: VoiceCallSettings
             if let value = sharedData.entries[ApplicationSpecificSharedDataKeys.voiceCallSettings]?.get(VoiceCallSettings.self) {
@@ -1972,10 +1972,10 @@ private final class NotificationServiceHandler {
                                                     return true
                                                 })
                                                 
-                                                if showUsernameInsteadOfName, topicTitle == nil, let user = peer as? TelegramUser, let username = user.addressName, !username.isEmpty {
+                                                if topicTitle == nil, let username = usernameDisplay.username(for: EnginePeer(peer)) {
                                                     content.title = "@\(username)"
                                                 }
-                                                content.addSenderInfo(mediaBox: stateManager.postbox.mediaBox, accountPeerId: stateManager.accountPeerId, peer: peer, topicTitle: topicTitle, contactIdentifier: foundLocalId, isStory: false, showUsernameInsteadOfName: showUsernameInsteadOfName)
+                                                content.addSenderInfo(mediaBox: stateManager.postbox.mediaBox, accountPeerId: stateManager.accountPeerId, peer: peer, topicTitle: topicTitle, contactIdentifier: foundLocalId, isStory: false, usernameDisplay: usernameDisplay)
                                             }
                                         }
                                         
@@ -2316,10 +2316,10 @@ private final class NotificationServiceHandler {
                                                     return true
                                                 })
                                                 
-                                                if showUsernameInsteadOfName, topicTitle == nil, let user = peer as? TelegramUser, let username = user.addressName, !username.isEmpty {
+                                                if topicTitle == nil, let username = usernameDisplay.username(for: EnginePeer(peer)) {
                                                     content.title = "@\(username)"
                                                 }
-                                                content.addSenderInfo(mediaBox: stateManager.postbox.mediaBox, accountPeerId: stateManager.accountPeerId, peer: peer, topicTitle: topicTitle, contactIdentifier: foundLocalId, isStory: false, showUsernameInsteadOfName: showUsernameInsteadOfName)
+                                                content.addSenderInfo(mediaBox: stateManager.postbox.mediaBox, accountPeerId: stateManager.accountPeerId, peer: peer, topicTitle: topicTitle, contactIdentifier: foundLocalId, isStory: false, usernameDisplay: usernameDisplay)
                                             }
                                         }
 

@@ -40,7 +40,8 @@ private final class ThemeSettingsControllerArguments {
     let openStickersAndEmoji: () -> Void
     let toggleSendWithCmdEnter: (Bool) -> Void
     let toggleShowNextMediaOnTap: (Bool) -> Void
-    let toggleShowUsernameInsteadOfName: (Bool) -> Void
+    let toggleShowUsernameForUsers: (Bool) -> Void
+    let toggleShowUsernameForChannels: (Bool) -> Void
     let selectAppIcon: (PresentationAppIcon) -> Void
     let editTheme: (PresentationCloudTheme) -> Void
     let themeContextAction: (Bool, PresentationThemeReference, ASDisplayNode, ContextGesture?) -> Void
@@ -62,7 +63,8 @@ private final class ThemeSettingsControllerArguments {
         openStickersAndEmoji: @escaping () -> Void,
         toggleSendWithCmdEnter: @escaping (Bool) -> Void,
         toggleShowNextMediaOnTap: @escaping (Bool) -> Void,
-        toggleShowUsernameInsteadOfName: @escaping (Bool) -> Void,
+        toggleShowUsernameForUsers: @escaping (Bool) -> Void,
+        toggleShowUsernameForChannels: @escaping (Bool) -> Void,
         selectAppIcon: @escaping (PresentationAppIcon) -> Void,
         editTheme: @escaping (PresentationCloudTheme) -> Void,
         themeContextAction: @escaping (Bool, PresentationThemeReference, ASDisplayNode, ContextGesture?) -> Void,
@@ -83,7 +85,8 @@ private final class ThemeSettingsControllerArguments {
         self.openStickersAndEmoji = openStickersAndEmoji
         self.toggleSendWithCmdEnter = toggleSendWithCmdEnter
         self.toggleShowNextMediaOnTap = toggleShowNextMediaOnTap
-        self.toggleShowUsernameInsteadOfName = toggleShowUsernameInsteadOfName
+        self.toggleShowUsernameForUsers = toggleShowUsernameForUsers
+        self.toggleShowUsernameForChannels = toggleShowUsernameForChannels
         self.selectAppIcon = selectAppIcon
         self.editTheme = editTheme
         self.themeContextAction = themeContextAction
@@ -114,7 +117,8 @@ public enum ThemeSettingsEntryTag: ItemListItemTag {
     case tapForNextMedia
     case nightMode
     case edit
-    case showUsernameInsteadOfName
+    case showUsernameForUsers
+    case showUsernameForChannels
     
     public func isEqual(to other: ItemListItemTag) -> Bool {
         if let other = other as? ThemeSettingsEntryTag, self == other {
@@ -145,8 +149,9 @@ private enum ThemeSettingsControllerEntry: ItemListNodeEntry {
     case showNextMediaOnTap(PresentationTheme, String, Bool)
     case showNextMediaOnTapInfo(PresentationTheme, String)
     case nameDisplayHeader(PresentationTheme, String)
-    case showUsernameInsteadOfName(PresentationTheme, String, Bool)
-    case showUsernameInsteadOfNameInfo(PresentationTheme, String)
+    case showUsernameForUsers(PresentationTheme, String, Bool)
+    case showUsernameForChannels(PresentationTheme, String, Bool)
+    case usernameDisplayInfo(PresentationTheme, String)
     
     var section: ItemListSectionId {
         switch self {
@@ -162,7 +167,7 @@ private enum ThemeSettingsControllerEntry: ItemListNodeEntry {
                 return ThemeSettingsControllerSection.message.rawValue
             case .otherHeader, .sendWithCmdEnter, .showNextMediaOnTap, .showNextMediaOnTapInfo:
                 return ThemeSettingsControllerSection.other.rawValue
-            case .nameDisplayHeader, .showUsernameInsteadOfName, .showUsernameInsteadOfNameInfo:
+            case .nameDisplayHeader, .showUsernameForUsers, .showUsernameForChannels, .usernameDisplayInfo:
                 return ThemeSettingsControllerSection.profile.rawValue
         }
     }
@@ -207,10 +212,12 @@ private enum ThemeSettingsControllerEntry: ItemListNodeEntry {
             return 17
         case .nameDisplayHeader:
             return 18
-        case .showUsernameInsteadOfName:
+        case .showUsernameForUsers:
             return 19
-        case .showUsernameInsteadOfNameInfo:
+        case .showUsernameForChannels:
             return 20
+        case .usernameDisplayInfo:
+            return 21
         }
     }
     
@@ -330,14 +337,20 @@ private enum ThemeSettingsControllerEntry: ItemListNodeEntry {
                 } else {
                     return false
                 }
-            case let .showUsernameInsteadOfName(lhsTheme, lhsTitle, lhsValue):
-                if case let .showUsernameInsteadOfName(rhsTheme, rhsTitle, rhsValue) = rhs, lhsTheme === rhsTheme, lhsTitle == rhsTitle, lhsValue == rhsValue {
+            case let .showUsernameForUsers(lhsTheme, lhsTitle, lhsValue):
+                if case let .showUsernameForUsers(rhsTheme, rhsTitle, rhsValue) = rhs, lhsTheme === rhsTheme, lhsTitle == rhsTitle, lhsValue == rhsValue {
                     return true
                 } else {
                     return false
                 }
-            case let .showUsernameInsteadOfNameInfo(lhsTheme, lhsText):
-                if case let .showUsernameInsteadOfNameInfo(rhsTheme, rhsText) = rhs, lhsTheme === rhsTheme, lhsText == rhsText {
+            case let .showUsernameForChannels(lhsTheme, lhsTitle, lhsValue):
+                if case let .showUsernameForChannels(rhsTheme, rhsTitle, rhsValue) = rhs, lhsTheme === rhsTheme, lhsTitle == rhsTitle, lhsValue == rhsValue {
+                    return true
+                } else {
+                    return false
+                }
+            case let .usernameDisplayInfo(lhsTheme, lhsText):
+                if case let .usernameDisplayInfo(rhsTheme, rhsText) = rhs, lhsTheme === rhsTheme, lhsText == rhsText {
                     return true
                 } else {
                     return false
@@ -430,11 +443,15 @@ private enum ThemeSettingsControllerEntry: ItemListNodeEntry {
                 return ItemListTextItem(presentationData: presentationData, text: .plain(text), sectionId: self.section)
             case let .nameDisplayHeader(_, text):
                 return ItemListSectionHeaderItem(presentationData: presentationData, text: text, sectionId: self.section)
-            case let .showUsernameInsteadOfName(_, title, value):
+            case let .showUsernameForUsers(_, title, value):
                 return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: title, value: value, sectionId: self.section, style: .blocks, updated: { value in
-                    arguments.toggleShowUsernameInsteadOfName(value)
-                }, tag: ThemeSettingsEntryTag.showUsernameInsteadOfName)
-            case let .showUsernameInsteadOfNameInfo(_, text):
+                    arguments.toggleShowUsernameForUsers(value)
+                }, tag: ThemeSettingsEntryTag.showUsernameForUsers)
+            case let .showUsernameForChannels(_, title, value):
+                return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: title, value: value, sectionId: self.section, style: .blocks, updated: { value in
+                    arguments.toggleShowUsernameForChannels(value)
+                }, tag: ThemeSettingsEntryTag.showUsernameForChannels)
+            case let .usernameDisplayInfo(_, text):
                 return ItemListTextItem(presentationData: presentationData, text: .plain(text), sectionId: self.section)
         }
     }
@@ -537,8 +554,9 @@ private func themeSettingsControllerEntries(
     entries.append(.showNextMediaOnTapInfo(presentationData.theme, strings.Appearance_ShowNextMediaOnTapInfo))
     
     entries.append(.nameDisplayHeader(presentationData.theme, strings.Appearance_NameDisplayHeader.uppercased()))
-    entries.append(.showUsernameInsteadOfName(presentationData.theme, strings.Appearance_ShowUsernameInsteadOfName, presentationThemeSettings.showUsernameInsteadOfName))
-    entries.append(.showUsernameInsteadOfNameInfo(presentationData.theme, strings.Appearance_ShowUsernameInsteadOfNameInfo))
+    entries.append(.showUsernameForUsers(presentationData.theme, strings.Appearance_ShowUsernameForUsers, presentationThemeSettings.usernameDisplay.users))
+    entries.append(.showUsernameForChannels(presentationData.theme, strings.Appearance_ShowUsernameForChannels, presentationThemeSettings.usernameDisplay.channels))
+    entries.append(.usernameDisplayInfo(presentationData.theme, strings.Appearance_UsernameDisplayInfo))
     
     return entries
 }
@@ -665,9 +683,13 @@ public func themeSettingsController(context: AccountContext, focusOnItemTag: The
         let _ = updateMediaDisplaySettingsInteractively(accountManager: context.sharedContext.accountManager, { current in
             return current.withUpdatedShowNextMediaOnTap(value)
         }).start()
-    }, toggleShowUsernameInsteadOfName: { value in
+    }, toggleShowUsernameForUsers: { value in
         let _ = updatePresentationThemeSettingsInteractively(accountManager: context.sharedContext.accountManager, { current in
-            return current.withUpdatedShowUsernameInsteadOfName(value)
+            return current.withUpdatedUsernameDisplay(current.usernameDisplay.withUpdatedUsers(value))
+        }).start()
+    }, toggleShowUsernameForChannels: { value in
+        let _ = updatePresentationThemeSettingsInteractively(accountManager: context.sharedContext.accountManager, { current in
+            return current.withUpdatedUsernameDisplay(current.usernameDisplay.withUpdatedChannels(value))
         }).start()
     }, selectAppIcon: { icon in
         let _ = (context.engine.data.get(TelegramEngine.EngineData.Item.Peer.Peer(id: context.account.peerId))
@@ -1428,7 +1450,7 @@ public func themeSettingsController(context: AccountContext, focusOnItemTag: The
                     }
                 }
                 
-                return PresentationThemeSettings(theme: updatedTheme, themePreferredBaseTheme: themePreferredBaseTheme, themeSpecificAccentColors: themeSpecificAccentColors, themeSpecificChatWallpapers: themeSpecificChatWallpapers, useSystemFont: current.useSystemFont, fontSize: current.fontSize, listsFontSize: current.listsFontSize, chatBubbleSettings: current.chatBubbleSettings, automaticThemeSwitchSetting: updatedAutomaticThemeSwitchSetting, largeEmoji: current.largeEmoji, reduceMotion: current.reduceMotion, showUsernameInsteadOfName: current.showUsernameInsteadOfName)
+                return PresentationThemeSettings(theme: updatedTheme, themePreferredBaseTheme: themePreferredBaseTheme, themeSpecificAccentColors: themeSpecificAccentColors, themeSpecificChatWallpapers: themeSpecificChatWallpapers, useSystemFont: current.useSystemFont, fontSize: current.fontSize, listsFontSize: current.listsFontSize, chatBubbleSettings: current.chatBubbleSettings, automaticThemeSwitchSetting: updatedAutomaticThemeSwitchSetting, largeEmoji: current.largeEmoji, reduceMotion: current.reduceMotion, usernameDisplay: current.usernameDisplay)
             }).start()
             
             presentCrossfadeControllerImpl?(true)

@@ -26,7 +26,7 @@ public final class ChatInlineSearchResultsListComponent: Component {
         public var dateTimeFormat: PresentationDateTimeFormat
         public var nameSortOrder: PresentationPersonNameOrder
         public var nameDisplayOrder: PresentationPersonNameOrder
-        public var showUsernameInsteadOfName: Bool
+        public var usernameDisplay: PresentationUsernameDisplaySettings
         
         public init(
             theme: PresentationTheme,
@@ -35,7 +35,7 @@ public final class ChatInlineSearchResultsListComponent: Component {
             dateTimeFormat: PresentationDateTimeFormat,
             nameSortOrder: PresentationPersonNameOrder,
             nameDisplayOrder: PresentationPersonNameOrder,
-            showUsernameInsteadOfName: Bool
+            usernameDisplay: PresentationUsernameDisplaySettings
         ) {
             self.theme = theme
             self.strings = strings
@@ -43,7 +43,7 @@ public final class ChatInlineSearchResultsListComponent: Component {
             self.dateTimeFormat = dateTimeFormat
             self.nameSortOrder = nameSortOrder
             self.nameDisplayOrder = nameDisplayOrder
-            self.showUsernameInsteadOfName = showUsernameInsteadOfName
+            self.usernameDisplay = usernameDisplay
         }
         
         public static func ==(lhs: Presentation, rhs: Presentation) -> Bool {
@@ -65,7 +65,7 @@ public final class ChatInlineSearchResultsListComponent: Component {
             if lhs.nameDisplayOrder != rhs.nameDisplayOrder {
                 return false
             }
-            if lhs.showUsernameInsteadOfName != rhs.showUsernameInsteadOfName {
+            if lhs.usernameDisplay != rhs.usernameDisplay {
                 return false
             }
             return true
@@ -995,7 +995,7 @@ public final class ChatInlineSearchResultsListComponent: Component {
                         dateTimeFormat: component.presentation.dateTimeFormat,
                         nameSortOrder: component.presentation.nameSortOrder,
                         nameDisplayOrder: component.presentation.nameDisplayOrder,
-                        showUsernameInsteadOfName: component.presentation.showUsernameInsteadOfName,
+                        usernameDisplay: component.presentation.usernameDisplay,
                         disableAnimations: false
                     )
                     self.currentChatListPresentationData = (component.presentation, chatListPresentationData)

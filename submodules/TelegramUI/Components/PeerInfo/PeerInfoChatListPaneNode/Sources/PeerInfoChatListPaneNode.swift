@@ -165,7 +165,7 @@ public final class PeerInfoChatListPaneNode: ASDisplayNode, PeerInfoPaneNode, AS
             dateTimeFormat: self.presentationData.dateTimeFormat,
             nameSortOrder: self.presentationData.nameSortOrder,
             nameDisplayOrder: self.presentationData.nameDisplayOrder,
-            showUsernameInsteadOfName: self.presentationData.showUsernameInsteadOfName,
+            usernameDisplay: self.presentationData.usernameDisplay,
             animationCache: self.context.animationCache,
             animationRenderer: self.context.animationRenderer,
             disableAnimations: false,

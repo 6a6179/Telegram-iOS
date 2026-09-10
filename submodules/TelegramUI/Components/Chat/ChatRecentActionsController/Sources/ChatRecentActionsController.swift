@@ -439,7 +439,7 @@ public final class ChatRecentActionsController: TelegramBaseController {
             strings: self.presentationData.strings,
             dateTimeFormat: self.presentationData.dateTimeFormat,
             nameDisplayOrder: self.presentationData.nameDisplayOrder,
-            showUsernameInsteadOfName: self.presentationData.showUsernameInsteadOfName,
+            usernameDisplay: self.presentationData.usernameDisplay,
             content: .custom(title: [ChatTitleContent.TitleTextItem(id: AnyHashable(0), content: .text(title))], subtitle: subtitle, isEnabled: false),
             transition: .immediate
         )

@@ -10,17 +10,17 @@ public final class ChatListPresentationData {
     public let dateTimeFormat: PresentationDateTimeFormat
     public let nameSortOrder: PresentationPersonNameOrder
     public let nameDisplayOrder: PresentationPersonNameOrder
-    public let showUsernameInsteadOfName: Bool
+    public let usernameDisplay: PresentationUsernameDisplaySettings
     public let disableAnimations: Bool
     
-    public init(theme: PresentationTheme, fontSize: PresentationFontSize, strings: PresentationStrings, dateTimeFormat: PresentationDateTimeFormat, nameSortOrder: PresentationPersonNameOrder, nameDisplayOrder: PresentationPersonNameOrder, showUsernameInsteadOfName: Bool, disableAnimations: Bool) {
+    public init(theme: PresentationTheme, fontSize: PresentationFontSize, strings: PresentationStrings, dateTimeFormat: PresentationDateTimeFormat, nameSortOrder: PresentationPersonNameOrder, nameDisplayOrder: PresentationPersonNameOrder, usernameDisplay: PresentationUsernameDisplaySettings, disableAnimations: Bool) {
         self.theme = theme
         self.fontSize = fontSize
         self.strings = strings
         self.dateTimeFormat = dateTimeFormat
         self.nameSortOrder = nameSortOrder
         self.nameDisplayOrder = nameDisplayOrder
-        self.showUsernameInsteadOfName = showUsernameInsteadOfName
+        self.usernameDisplay = usernameDisplay
         self.disableAnimations = disableAnimations
     }
 }

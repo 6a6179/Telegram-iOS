@@ -115,7 +115,7 @@ final class GreetingMessageListItemComponent: Component {
                     dateTimeFormat: presentationData.dateTimeFormat,
                     nameSortOrder: presentationData.nameSortOrder,
                     nameDisplayOrder: presentationData.nameDisplayOrder,
-                    showUsernameInsteadOfName: presentationData.showUsernameInsteadOfName,
+                    usernameDisplay: presentationData.usernameDisplay,
                     disableAnimations: false
                 )
                 self.chatListPresentationData = chatListPresentationData

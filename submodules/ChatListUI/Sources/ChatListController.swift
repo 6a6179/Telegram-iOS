@@ -451,12 +451,12 @@ public class ChatListControllerImpl: TelegramBaseController, ChatListController 
             if let strongSelf = self {
                 let previousTheme = strongSelf.presentationData.theme
                 let previousStrings = strongSelf.presentationData.strings
-                let previousShowUsernameInsteadOfName = strongSelf.presentationData.showUsernameInsteadOfName
+                let previousUsernameDisplay = strongSelf.presentationData.usernameDisplay
                 
                 strongSelf.presentationData = presentationData
                 strongSelf.presentationDataValue.set(.single(presentationData))
                 
-                if previousTheme !== presentationData.theme || previousStrings !== presentationData.strings || previousShowUsernameInsteadOfName != presentationData.showUsernameInsteadOfName {
+                if previousTheme !== presentationData.theme || previousStrings !== presentationData.strings || previousUsernameDisplay != presentationData.usernameDisplay {
                     strongSelf.updateThemeAndStrings()
                 }
             }
@@ -7395,7 +7395,7 @@ private final class ChatListLocationContext {
                 strings: presentationData.strings,
                 dateTimeFormat: presentationData.dateTimeFormat,
                 nameDisplayOrder: presentationData.nameDisplayOrder,
-                showUsernameInsteadOfName: presentationData.showUsernameInsteadOfName,
+                usernameDisplay: presentationData.usernameDisplay,
                 displayBackground: false,
                 content: .custom(title: [ChatTitleContent.TitleTextItem(id: AnyHashable(0), content: .text(presentationData.strings.ChatList_SelectedTopics(Int32(stateAndFilterId.state.selectedThreadIds.count))))], subtitle: nil, isEnabled: false),
                 activities: nil,
@@ -7413,7 +7413,7 @@ private final class ChatListLocationContext {
                 strings: presentationData.strings,
                 dateTimeFormat: presentationData.dateTimeFormat,
                 nameDisplayOrder: presentationData.nameDisplayOrder,
-                showUsernameInsteadOfName: presentationData.showUsernameInsteadOfName,
+                usernameDisplay: presentationData.usernameDisplay,
                 displayBackground: false,
                 content: .peer(peerView: ChatTitleContent.PeerData(peerView: peerView), customTitle: nil, customSubtitle: nil, onlineMemberCount: onlineMemberCount, isScheduledMessages: false, isMuted: nil, customMessageCount: nil, hidePeerStatus: false, isEnabled: true),
                 activities: nil,

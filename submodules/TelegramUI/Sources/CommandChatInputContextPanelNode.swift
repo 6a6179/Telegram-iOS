@@ -197,7 +197,7 @@ private struct CommandChatInputContextPanelEntry: Comparable, Identifiable {
                     dateTimeFormat: presentationData.dateTimeFormat,
                     nameSortOrder: presentationData.nameSortOrder,
                     nameDisplayOrder: presentationData.nameDisplayOrder,
-                    showUsernameInsteadOfName: presentationData.showUsernameInsteadOfName,
+                    usernameDisplay: presentationData.usernameDisplay,
                     disableAnimations: false
                 )
                 

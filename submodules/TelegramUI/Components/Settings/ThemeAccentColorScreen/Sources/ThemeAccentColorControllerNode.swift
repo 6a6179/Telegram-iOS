@@ -881,7 +881,7 @@ final class ThemeAccentColorControllerNode: ASDisplayNode, ASScrollViewDelegate 
         }, openAccountFreezeInfo: {
         }, openUrl: { _ in
         })
-        let chatListPresentationData = ChatListPresentationData(theme: self.presentationData.theme, fontSize: self.presentationData.listsFontSize, strings: self.presentationData.strings, dateTimeFormat: self.presentationData.dateTimeFormat, nameSortOrder: self.presentationData.nameSortOrder, nameDisplayOrder: self.presentationData.nameDisplayOrder, showUsernameInsteadOfName: self.presentationData.showUsernameInsteadOfName, disableAnimations: true)
+        let chatListPresentationData = ChatListPresentationData(theme: self.presentationData.theme, fontSize: self.presentationData.listsFontSize, strings: self.presentationData.strings, dateTimeFormat: self.presentationData.dateTimeFormat, nameSortOrder: self.presentationData.nameSortOrder, nameDisplayOrder: self.presentationData.nameDisplayOrder, usernameDisplay: self.presentationData.usernameDisplay, disableAnimations: true)
 
         func makeChatListItem(
             peer: EnginePeer,

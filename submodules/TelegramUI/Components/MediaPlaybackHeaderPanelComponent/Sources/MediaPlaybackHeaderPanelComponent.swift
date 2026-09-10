@@ -108,7 +108,7 @@ public final class MediaPlaybackHeaderPanelComponent: Component {
                     nameSortOrder: .firstLast,
                     reduceMotion: false,
                     largeEmoji: false,
-                    showUsernameInsteadOfName: false
+                    usernameDisplay: .default
                 ))
                 self.panel = panel
                 self.addSubview(panel.view)
@@ -369,7 +369,7 @@ public final class MediaPlaybackHeaderPanelComponent: Component {
                     nameSortOrder: .firstLast,
                     reduceMotion: false,
                     largeEmoji: false,
-                    showUsernameInsteadOfName: false
+                    usernameDisplay: .default
                 ))
             }
             
