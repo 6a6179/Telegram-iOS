@@ -9236,9 +9236,9 @@ Sorry for the inconvenience.";
 
 "Appearance.ShowNextMediaOnTap" = "Show Next Media on Tap";
 "Appearance.ShowNextMediaOnTapInfo" = "Tap near the edge of the screen while viewing media to navigate between photos.";
-"Appearance.ProfileHeader" = "Profile";
+"Appearance.NameDisplayHeader" = "Name Display";
 "Appearance.ShowUsernameInsteadOfName" = "Show Username Instead of Name";
-"Appearance.ShowUsernameInsteadOfNameInfo" = "Profiles will show @username as the title instead of the display name. The name is used when there is no username.";
+"Appearance.ShowUsernameInsteadOfNameInfo" = "Chats, the chat list, notifications and profiles will show @username instead of the display name. The name is still used for people without a username. Groups and channels are not affected.";
 
 "WebApp.LaunchMoreInfo" = "More about this bot";
 "WebApp.LaunchConfirmation" = "To launch this web app, you will connect to its website.";

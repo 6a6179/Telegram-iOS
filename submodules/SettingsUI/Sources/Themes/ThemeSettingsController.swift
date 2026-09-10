@@ -144,7 +144,7 @@ private enum ThemeSettingsControllerEntry: ItemListNodeEntry {
     case sendWithCmdEnter(PresentationTheme, String, Bool)
     case showNextMediaOnTap(PresentationTheme, String, Bool)
     case showNextMediaOnTapInfo(PresentationTheme, String)
-    case profileHeader(PresentationTheme, String)
+    case nameDisplayHeader(PresentationTheme, String)
     case showUsernameInsteadOfName(PresentationTheme, String, Bool)
     case showUsernameInsteadOfNameInfo(PresentationTheme, String)
     
@@ -162,7 +162,7 @@ private enum ThemeSettingsControllerEntry: ItemListNodeEntry {
                 return ThemeSettingsControllerSection.message.rawValue
             case .otherHeader, .sendWithCmdEnter, .showNextMediaOnTap, .showNextMediaOnTapInfo:
                 return ThemeSettingsControllerSection.other.rawValue
-            case .profileHeader, .showUsernameInsteadOfName, .showUsernameInsteadOfNameInfo:
+            case .nameDisplayHeader, .showUsernameInsteadOfName, .showUsernameInsteadOfNameInfo:
                 return ThemeSettingsControllerSection.profile.rawValue
         }
     }
@@ -205,7 +205,7 @@ private enum ThemeSettingsControllerEntry: ItemListNodeEntry {
             return 16
         case .showNextMediaOnTapInfo:
             return 17
-        case .profileHeader:
+        case .nameDisplayHeader:
             return 18
         case .showUsernameInsteadOfName:
             return 19
@@ -324,8 +324,8 @@ private enum ThemeSettingsControllerEntry: ItemListNodeEntry {
                 } else {
                     return false
                 }
-            case let .profileHeader(lhsTheme, lhsText):
-                if case let .profileHeader(rhsTheme, rhsText) = rhs, lhsTheme === rhsTheme, lhsText == rhsText {
+            case let .nameDisplayHeader(lhsTheme, lhsText):
+                if case let .nameDisplayHeader(rhsTheme, rhsText) = rhs, lhsTheme === rhsTheme, lhsText == rhsText {
                     return true
                 } else {
                     return false
@@ -428,7 +428,7 @@ private enum ThemeSettingsControllerEntry: ItemListNodeEntry {
                 }, tag: ThemeSettingsEntryTag.tapForNextMedia)
             case let .showNextMediaOnTapInfo(_, text):
                 return ItemListTextItem(presentationData: presentationData, text: .plain(text), sectionId: self.section)
-            case let .profileHeader(_, text):
+            case let .nameDisplayHeader(_, text):
                 return ItemListSectionHeaderItem(presentationData: presentationData, text: text, sectionId: self.section)
             case let .showUsernameInsteadOfName(_, title, value):
                 return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: title, value: value, sectionId: self.section, style: .blocks, updated: { value in
@@ -536,7 +536,7 @@ private func themeSettingsControllerEntries(
     entries.append(.showNextMediaOnTap(presentationData.theme, strings.Appearance_ShowNextMediaOnTap, mediaSettings.showNextMediaOnTap))
     entries.append(.showNextMediaOnTapInfo(presentationData.theme, strings.Appearance_ShowNextMediaOnTapInfo))
     
-    entries.append(.profileHeader(presentationData.theme, strings.Appearance_ProfileHeader.uppercased()))
+    entries.append(.nameDisplayHeader(presentationData.theme, strings.Appearance_NameDisplayHeader.uppercased()))
     entries.append(.showUsernameInsteadOfName(presentationData.theme, strings.Appearance_ShowUsernameInsteadOfName, presentationThemeSettings.showUsernameInsteadOfName))
     entries.append(.showUsernameInsteadOfNameInfo(presentationData.theme, strings.Appearance_ShowUsernameInsteadOfNameInfo))
     

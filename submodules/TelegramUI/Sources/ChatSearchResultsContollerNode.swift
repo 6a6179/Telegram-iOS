@@ -193,7 +193,7 @@ class ChatSearchResultsControllerNode: ViewControllerTracingNode, ASScrollViewDe
          
         let presentationData = context.sharedContext.currentPresentationData.with { $0 }
         self.presentationData = presentationData
-        self.presentationDataPromise = Promise(ChatListPresentationData(theme: self.presentationData.theme, fontSize: self.presentationData.listsFontSize, strings: self.presentationData.strings, dateTimeFormat: self.presentationData.dateTimeFormat, nameSortOrder: self.presentationData.nameSortOrder, nameDisplayOrder: self.presentationData.nameDisplayOrder, disableAnimations: true))
+        self.presentationDataPromise = Promise(ChatListPresentationData(theme: self.presentationData.theme, fontSize: self.presentationData.listsFontSize, strings: self.presentationData.strings, dateTimeFormat: self.presentationData.dateTimeFormat, nameSortOrder: self.presentationData.nameSortOrder, nameDisplayOrder: self.presentationData.nameDisplayOrder, showUsernameInsteadOfName: self.presentationData.showUsernameInsteadOfName, disableAnimations: true))
         
         self.animationCache = context.animationCache
         self.animationRenderer = context.animationRenderer
@@ -387,7 +387,7 @@ class ChatSearchResultsControllerNode: ViewControllerTracingNode, ASScrollViewDe
     
     func updatePresentationData(_ presentationData: PresentationData) {
         self.presentationData = presentationData
-        self.presentationDataPromise.set(.single(ChatListPresentationData(theme: self.presentationData.theme, fontSize: self.presentationData.listsFontSize, strings: self.presentationData.strings, dateTimeFormat: self.presentationData.dateTimeFormat, nameSortOrder: self.presentationData.nameSortOrder, nameDisplayOrder: self.presentationData.nameDisplayOrder, disableAnimations: true)))
+        self.presentationDataPromise.set(.single(ChatListPresentationData(theme: self.presentationData.theme, fontSize: self.presentationData.listsFontSize, strings: self.presentationData.strings, dateTimeFormat: self.presentationData.dateTimeFormat, nameSortOrder: self.presentationData.nameSortOrder, nameDisplayOrder: self.presentationData.nameDisplayOrder, showUsernameInsteadOfName: self.presentationData.showUsernameInsteadOfName, disableAnimations: true)))
 
         self.listNode.forEachItemHeaderNode({ itemHeaderNode in
             if let itemHeaderNode = itemHeaderNode as? ChatListSearchItemHeaderNode {

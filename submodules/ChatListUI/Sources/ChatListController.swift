@@ -451,11 +451,12 @@ public class ChatListControllerImpl: TelegramBaseController, ChatListController 
             if let strongSelf = self {
                 let previousTheme = strongSelf.presentationData.theme
                 let previousStrings = strongSelf.presentationData.strings
+                let previousShowUsernameInsteadOfName = strongSelf.presentationData.showUsernameInsteadOfName
                 
                 strongSelf.presentationData = presentationData
                 strongSelf.presentationDataValue.set(.single(presentationData))
                 
-                if previousTheme !== presentationData.theme || previousStrings !== presentationData.strings {
+                if previousTheme !== presentationData.theme || previousStrings !== presentationData.strings || previousShowUsernameInsteadOfName != presentationData.showUsernameInsteadOfName {
                     strongSelf.updateThemeAndStrings()
                 }
             }

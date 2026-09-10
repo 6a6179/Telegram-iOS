@@ -3186,7 +3186,8 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
                         chatListFontSize: self.chatPresentationInterfaceState.fontSize,
                         dateTimeFormat: self.chatPresentationInterfaceState.dateTimeFormat,
                         nameSortOrder: self.chatPresentationInterfaceState.nameDisplayOrder,
-                        nameDisplayOrder: self.chatPresentationInterfaceState.nameDisplayOrder
+                        nameDisplayOrder: self.chatPresentationInterfaceState.nameDisplayOrder,
+                        showUsernameInsteadOfName: self.context.sharedContext.currentPresentationData.with({ $0 }).showUsernameInsteadOfName
                     ),
                     peerId: peerId,
                     contents: mappedContents,

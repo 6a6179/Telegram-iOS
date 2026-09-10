@@ -1519,7 +1519,7 @@ public class ChatListItemNode: ItemListRevealOptionsItemNode {
                     if item.context.account.peerId == chatMainPeer.id {
                         result += item.presentationData.strings.DialogList_SavedMessages
                     } else {
-                        result += chatMainPeer.displayTitle(strings: item.presentationData.strings, displayOrder: item.presentationData.nameDisplayOrder)
+                        result += chatMainPeer.chatListTitle(presentationData: item.presentationData)
                     }
                     if let combinedReadState = peerData.combinedReadState, combinedReadState.count > 0 {
                         result += "\n\(item.presentationData.strings.VoiceOver_Chat_UnreadMessages(combinedReadState.count))"
@@ -3295,7 +3295,7 @@ public class ChatListItemNode: ItemListRevealOptionsItemNode {
                         if customMessageListData.commandPrefix != nil {
                             titleAttributedString = nil
                         } else {
-                            if let displayTitle = itemPeer.chatOrMonoforumMainPeer?.displayTitle(strings: item.presentationData.strings, displayOrder: item.presentationData.nameDisplayOrder) {
+                            if let displayTitle = itemPeer.chatOrMonoforumMainPeer?.chatListTitle(presentationData: item.presentationData) {
                                 let textColor: UIColor
                                 if case let .chatList(index) = item.index, index.messageIndex.id.peerId.namespace == Namespaces.Peer.SecretChat {
                                     textColor = theme.secretTitleColor
@@ -3312,7 +3312,7 @@ public class ChatListItemNode: ItemListRevealOptionsItemNode {
                     } else if let threadInfo = threadInfo {
                         titleAttributedString = NSAttributedString(string: threadInfo.info.title, font: titleFont, textColor: theme.titleColor)
                     } else if let message = messages.last, case let .user(author) = message.author, displayAsMessage {
-                        titleAttributedString = NSAttributedString(string: author.id == account.peerId ? item.presentationData.strings.DialogList_You : EnginePeer.user(author).displayTitle(strings: item.presentationData.strings, displayOrder: item.presentationData.nameDisplayOrder), font: titleFont, textColor: theme.titleColor)
+                        titleAttributedString = NSAttributedString(string: author.id == account.peerId ? item.presentationData.strings.DialogList_You : EnginePeer.user(author).chatListTitle(presentationData: item.presentationData), font: titleFont, textColor: theme.titleColor)
                     } else if isPeerGroup {
                         titleAttributedString = NSAttributedString(string: item.presentationData.strings.ChatList_ArchivedChatsTitle, font: titleFont, textColor: theme.titleColor)
                     } else if itemPeer.chatMainPeer?.id == item.context.account.peerId {
@@ -3325,7 +3325,7 @@ public class ChatListItemNode: ItemListRevealOptionsItemNode {
                          titleAttributedString = NSAttributedString(string: item.presentationData.strings.DialogList_Replies, font: titleFont, textColor: theme.titleColor)
                     } else if let id = itemPeer.chatMainPeer?.id, id.isAnonymousSavedMessages {
                         titleAttributedString = NSAttributedString(string: item.presentationData.strings.ChatList_AuthorHidden, font: titleFont, textColor: theme.titleColor)
-                    } else if let displayTitle = itemPeer.chatOrMonoforumMainPeer?.displayTitle(strings: item.presentationData.strings, displayOrder: item.presentationData.nameDisplayOrder) {
+                    } else if let displayTitle = itemPeer.chatOrMonoforumMainPeer?.chatListTitle(presentationData: item.presentationData) {
                         let textColor: UIColor
                         if case let .chatList(index) = item.index, index.messageIndex.id.peerId.namespace == Namespaces.Peer.SecretChat {
                             textColor = theme.secretTitleColor
@@ -5913,5 +5913,14 @@ private class StarView: UIView {
     override func layoutSubviews() {
         self.outline.frame = self.bounds
         self.foreground.frame = self.bounds
+    }
+}
+
+private extension EnginePeer {
+    func chatListTitle(presentationData: ChatListPresentationData) -> String {
+        if presentationData.showUsernameInsteadOfName, case let .user(user) = self, let username = user.addressName, !username.isEmpty {
+            return "@\(username)"
+        }
+        return self.displayTitle(strings: presentationData.strings, displayOrder: presentationData.nameDisplayOrder)
     }
 }
