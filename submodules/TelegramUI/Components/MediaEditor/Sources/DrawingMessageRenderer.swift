@@ -399,7 +399,8 @@ public final class DrawingMessageRenderer {
                 nameDisplayOrder: presentationData.nameDisplayOrder,
                 nameSortOrder: presentationData.nameSortOrder,
                 reduceMotion: false,
-                largeEmoji: true
+                largeEmoji: true,
+                showUsernameInsteadOfName: false
             )
             
             var finalSize: CGSize = .zero

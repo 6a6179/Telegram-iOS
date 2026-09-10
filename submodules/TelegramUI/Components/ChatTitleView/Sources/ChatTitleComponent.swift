@@ -23,9 +23,10 @@ public final class ChatNavigationBarTitleView: UIView, NavigationBarTitleView {
         let strings: PresentationStrings
         let dateTimeFormat: PresentationDateTimeFormat
         let nameDisplayOrder: PresentationPersonNameOrder
+        let showUsernameInsteadOfName: Bool
         let content: ChatTitleContent
         
-        init(context: AccountContext, theme: PresentationTheme, preferClearGlass: Bool, wallpaper: TelegramWallpaper, strings: PresentationStrings, dateTimeFormat: PresentationDateTimeFormat, nameDisplayOrder: PresentationPersonNameOrder, content: ChatTitleContent) {
+        init(context: AccountContext, theme: PresentationTheme, preferClearGlass: Bool, wallpaper: TelegramWallpaper, strings: PresentationStrings, dateTimeFormat: PresentationDateTimeFormat, nameDisplayOrder: PresentationPersonNameOrder, showUsernameInsteadOfName: Bool, content: ChatTitleContent) {
             self.context = context
             self.theme = theme
             self.preferClearGlass = preferClearGlass
@@ -33,6 +34,7 @@ public final class ChatNavigationBarTitleView: UIView, NavigationBarTitleView {
             self.strings = strings
             self.dateTimeFormat = dateTimeFormat
             self.nameDisplayOrder = nameDisplayOrder
+            self.showUsernameInsteadOfName = showUsernameInsteadOfName
             self.content = content
         }
         
@@ -56,6 +58,9 @@ public final class ChatNavigationBarTitleView: UIView, NavigationBarTitleView {
                 return false
             }
             if lhs.nameDisplayOrder != rhs.nameDisplayOrder {
+                return false
+            }
+            if lhs.showUsernameInsteadOfName != rhs.showUsernameInsteadOfName {
                 return false
             }
             if lhs.content != rhs.content {
@@ -110,6 +115,7 @@ public final class ChatNavigationBarTitleView: UIView, NavigationBarTitleView {
         strings: PresentationStrings,
         dateTimeFormat: PresentationDateTimeFormat,
         nameDisplayOrder: PresentationPersonNameOrder,
+        showUsernameInsteadOfName: Bool,
         content: ChatTitleContent,
         transition: ComponentTransition,
         ignoreParentTransitionRequests: Bool = false
@@ -123,6 +129,7 @@ public final class ChatNavigationBarTitleView: UIView, NavigationBarTitleView {
             strings: strings,
             dateTimeFormat: dateTimeFormat,
             nameDisplayOrder: nameDisplayOrder,
+            showUsernameInsteadOfName: showUsernameInsteadOfName,
             content: content
         )
         let isUpdated = self.contentData != contentData
@@ -168,6 +175,7 @@ public final class ChatNavigationBarTitleView: UIView, NavigationBarTitleView {
                     strings: contentData.strings,
                     dateTimeFormat: contentData.dateTimeFormat,
                     nameDisplayOrder: contentData.nameDisplayOrder,
+                    showUsernameInsteadOfName: contentData.showUsernameInsteadOfName,
                     displayBackground: displayBackground,
                     content: contentData.content,
                     activities: self.activities,
@@ -235,6 +243,7 @@ public final class ChatTitleComponent: Component {
     public let strings: PresentationStrings
     public let dateTimeFormat: PresentationDateTimeFormat
     public let nameDisplayOrder: PresentationPersonNameOrder
+    public let showUsernameInsteadOfName: Bool
     public let displayBackground: Bool
     public let content: ChatTitleContent
     public let activities: Activities?
@@ -249,6 +258,7 @@ public final class ChatTitleComponent: Component {
         strings: PresentationStrings,
         dateTimeFormat: PresentationDateTimeFormat,
         nameDisplayOrder: PresentationPersonNameOrder,
+        showUsernameInsteadOfName: Bool,
         displayBackground: Bool,
         content: ChatTitleContent,
         activities: Activities?,
@@ -262,6 +272,7 @@ public final class ChatTitleComponent: Component {
         self.strings = strings
         self.dateTimeFormat = dateTimeFormat
         self.nameDisplayOrder = nameDisplayOrder
+        self.showUsernameInsteadOfName = showUsernameInsteadOfName
         self.displayBackground = displayBackground
         self.content = content
         self.activities = activities
@@ -287,6 +298,9 @@ public final class ChatTitleComponent: Component {
             return false
         }
         if lhs.nameDisplayOrder != rhs.nameDisplayOrder {
+            return false
+        }
+        if lhs.showUsernameInsteadOfName != rhs.showUsernameInsteadOfName {
             return false
         }
         if lhs.displayBackground != rhs.displayBackground {
@@ -427,7 +441,13 @@ public final class ChatTitleComponent: Component {
                                 content: .text(component.strings.ChatList_AuthorHidden)
                             )]
                         } else {
-                            if !peerView.isContact, let user = peer as? TelegramUser, !user.flags.contains(.isSupport), user.botInfo == nil, let phone = user.phone, !phone.isEmpty {
+                            if component.showUsernameInsteadOfName, let user = peer as? TelegramUser, let username = user.addressName, !username.isEmpty {
+                                titleSegments = [AnimatedTextComponent.Item(
+                                    id: AnyHashable(0),
+                                    isUnbreakable: true,
+                                    content: .text("@\(username)")
+                                )]
+                            } else if !peerView.isContact, let user = peer as? TelegramUser, !user.flags.contains(.isSupport), user.botInfo == nil, let phone = user.phone, !phone.isEmpty {
                                 titleSegments = [AnimatedTextComponent.Item(
                                     id: AnyHashable(0),
                                     isUnbreakable: true,

@@ -119,16 +119,22 @@ final class ChatMessageNotificationItemNode: NotificationItemNode {
             self.avatarNode.font = compactAvatarFont
         }
         let presentationData = item.context.sharedContext.currentPresentationData.with { $0 }
+        let peerTitle: (EnginePeer) -> String = { peer in
+            if presentationData.showUsernameInsteadOfName, case let .user(user) = peer, let username = user.addressName, !username.isEmpty {
+                return "@\(username)"
+            }
+            return peer.displayTitle(strings: item.strings, displayOrder: item.nameDisplayOrder)
+        }
         
         var isReminder = false
         var isScheduled = false
         var title: String?
         if let firstMessage = item.messages.first, let peer = messageMainPeer(EngineMessage(firstMessage)) {
             if case let .channel(channel) = peer, case .broadcast = channel.info {
-                title = peer.displayTitle(strings: item.strings, displayOrder: item.nameDisplayOrder)
+                title = peerTitle(peer)
             } else if let author = firstMessage.author {
                 if firstMessage.id.peerId.isReplies, let _ = firstMessage.sourceReference, let effectiveAuthor = firstMessage.forwardInfo?.author {
-                    title = EnginePeer(effectiveAuthor).displayTitle(strings: item.strings, displayOrder: item.nameDisplayOrder) + "@" + peer.displayTitle(strings: item.strings, displayOrder: item.nameDisplayOrder)
+                    title = EnginePeer(effectiveAuthor).displayTitle(strings: item.strings, displayOrder: item.nameDisplayOrder) + "@" + peerTitle(peer)
                 } else if author.id != peer.id {
                     let authorString: String
                     if author.id == item.context.account.peerId {
@@ -147,15 +153,15 @@ final class ChatMessageNotificationItemNode: NotificationItemNode {
                         if let threadData = item.threadData {
                             title = "\(authorString) → \(threadData.info.title)"
                         } else {
-                            title = authorString + "@" + peer.displayTitle(strings: item.strings, displayOrder: item.nameDisplayOrder)
+                            title = authorString + "@" + peerTitle(peer)
                         }
                     }
                 } else {
-                    title = peer.displayTitle(strings: item.strings, displayOrder: item.nameDisplayOrder)
+                    title = peerTitle(peer)
                     for attribute in firstMessage.attributes {
                         if let attribute = attribute as? SourceReferenceMessageAttribute {
                             if let sourcePeer = firstMessage.peers[attribute.messageId.peerId] {
-                                title = EnginePeer(sourcePeer).displayTitle(strings: item.strings, displayOrder: item.nameDisplayOrder) + "@" + peer.displayTitle(strings: item.strings, displayOrder: item.nameDisplayOrder)
+                                title = EnginePeer(sourcePeer).displayTitle(strings: item.strings, displayOrder: item.nameDisplayOrder) + "@" + peerTitle(peer)
                             }
                             break
                         }
@@ -166,7 +172,7 @@ final class ChatMessageNotificationItemNode: NotificationItemNode {
                     }
                 }
             } else {
-                title = peer.displayTitle(strings: item.strings, displayOrder: item.nameDisplayOrder)
+                title = peerTitle(peer)
             }
             
             if let _ = title, firstMessage.flags.contains(.WasScheduled) {
@@ -249,11 +255,11 @@ final class ChatMessageNotificationItemNode: NotificationItemNode {
             if item.messages[0].forwardInfo != nil && item.messages[0].sourceReference == nil {
                 if let author = item.messages[0].author, displayAuthor {
                     if !isReminder {
-                        title = EnginePeer(peer).displayTitle(strings: item.strings, displayOrder: item.nameDisplayOrder)
+                        title = peerTitle(EnginePeer(peer))
                     }
                     messageText = presentationData.strings.PUSH_CHAT_MESSAGE_FWDS_TEXT(Int32(item.messages.count)).replacingOccurrences(of: "{author}", with: EnginePeer(author).compactDisplayTitle)
                 } else {
-                    title = EnginePeer(peer).displayTitle(strings: item.strings, displayOrder: item.nameDisplayOrder)
+                    title = peerTitle(EnginePeer(peer))
                     messageText = presentationData.strings.PUSH_MESSAGE_FWDS_TEXT(Int32(item.messages.count))
                 }
             } else if item.messages[0].groupingKey != nil {
@@ -276,7 +282,7 @@ final class ChatMessageNotificationItemNode: NotificationItemNode {
                 } else if item.messages[0].id.peerId.namespace == Namespaces.Peer.CloudGroup {
                     isGroup = true
                 }
-                title = EnginePeer(peer).displayTitle(strings: item.strings, displayOrder: item.nameDisplayOrder)
+                title = peerTitle(EnginePeer(peer))
                 if isChannel {
                     switch kind {
                         case .image:

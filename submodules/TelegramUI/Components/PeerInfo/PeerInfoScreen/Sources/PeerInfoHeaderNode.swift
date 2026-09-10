@@ -1216,6 +1216,9 @@ final class PeerInfoHeaderNode: ASDisplayNode {
                 title = threadData.info.title
             } else {
                 title = peer.displayTitle(strings: presentationData.strings, displayOrder: presentationData.nameDisplayOrder)
+                if presentationData.showUsernameInsteadOfName, case .user = peer, let addressName = peer.addressName, !addressName.isEmpty {
+                    title = "@\(addressName)"
+                }
             }
             title = title.replacingOccurrences(of: "\u{1160}", with: "").replacingOccurrences(of: "\u{3164}", with: "")
             if title.replacingOccurrences(of: "\u{fe0e}", with: "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {

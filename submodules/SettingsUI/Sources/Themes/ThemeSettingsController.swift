@@ -40,6 +40,7 @@ private final class ThemeSettingsControllerArguments {
     let openStickersAndEmoji: () -> Void
     let toggleSendWithCmdEnter: (Bool) -> Void
     let toggleShowNextMediaOnTap: (Bool) -> Void
+    let toggleShowUsernameInsteadOfName: (Bool) -> Void
     let selectAppIcon: (PresentationAppIcon) -> Void
     let editTheme: (PresentationCloudTheme) -> Void
     let themeContextAction: (Bool, PresentationThemeReference, ASDisplayNode, ContextGesture?) -> Void
@@ -61,6 +62,7 @@ private final class ThemeSettingsControllerArguments {
         openStickersAndEmoji: @escaping () -> Void,
         toggleSendWithCmdEnter: @escaping (Bool) -> Void,
         toggleShowNextMediaOnTap: @escaping (Bool) -> Void,
+        toggleShowUsernameInsteadOfName: @escaping (Bool) -> Void,
         selectAppIcon: @escaping (PresentationAppIcon) -> Void,
         editTheme: @escaping (PresentationCloudTheme) -> Void,
         themeContextAction: @escaping (Bool, PresentationThemeReference, ASDisplayNode, ContextGesture?) -> Void,
@@ -81,6 +83,7 @@ private final class ThemeSettingsControllerArguments {
         self.openStickersAndEmoji = openStickersAndEmoji
         self.toggleSendWithCmdEnter = toggleSendWithCmdEnter
         self.toggleShowNextMediaOnTap = toggleShowNextMediaOnTap
+        self.toggleShowUsernameInsteadOfName = toggleShowUsernameInsteadOfName
         self.selectAppIcon = selectAppIcon
         self.editTheme = editTheme
         self.themeContextAction = themeContextAction
@@ -95,6 +98,7 @@ private enum ThemeSettingsControllerSection: Int32 {
     case icon
     case powerSaving
     case other
+    case profile
 }
 
 public enum ThemeSettingsEntryTag: ItemListItemTag {
@@ -110,6 +114,7 @@ public enum ThemeSettingsEntryTag: ItemListItemTag {
     case tapForNextMedia
     case nightMode
     case edit
+    case showUsernameInsteadOfName
     
     public func isEqual(to other: ItemListItemTag) -> Bool {
         if let other = other as? ThemeSettingsEntryTag, self == other {
@@ -139,6 +144,9 @@ private enum ThemeSettingsControllerEntry: ItemListNodeEntry {
     case sendWithCmdEnter(PresentationTheme, String, Bool)
     case showNextMediaOnTap(PresentationTheme, String, Bool)
     case showNextMediaOnTapInfo(PresentationTheme, String)
+    case profileHeader(PresentationTheme, String)
+    case showUsernameInsteadOfName(PresentationTheme, String, Bool)
+    case showUsernameInsteadOfNameInfo(PresentationTheme, String)
     
     var section: ItemListSectionId {
         switch self {
@@ -154,6 +162,8 @@ private enum ThemeSettingsControllerEntry: ItemListNodeEntry {
                 return ThemeSettingsControllerSection.message.rawValue
             case .otherHeader, .sendWithCmdEnter, .showNextMediaOnTap, .showNextMediaOnTapInfo:
                 return ThemeSettingsControllerSection.other.rawValue
+            case .profileHeader, .showUsernameInsteadOfName, .showUsernameInsteadOfNameInfo:
+                return ThemeSettingsControllerSection.profile.rawValue
         }
     }
     
@@ -195,6 +205,12 @@ private enum ThemeSettingsControllerEntry: ItemListNodeEntry {
             return 16
         case .showNextMediaOnTapInfo:
             return 17
+        case .profileHeader:
+            return 18
+        case .showUsernameInsteadOfName:
+            return 19
+        case .showUsernameInsteadOfNameInfo:
+            return 20
         }
     }
     
@@ -308,6 +324,24 @@ private enum ThemeSettingsControllerEntry: ItemListNodeEntry {
                 } else {
                     return false
                 }
+            case let .profileHeader(lhsTheme, lhsText):
+                if case let .profileHeader(rhsTheme, rhsText) = rhs, lhsTheme === rhsTheme, lhsText == rhsText {
+                    return true
+                } else {
+                    return false
+                }
+            case let .showUsernameInsteadOfName(lhsTheme, lhsTitle, lhsValue):
+                if case let .showUsernameInsteadOfName(rhsTheme, rhsTitle, rhsValue) = rhs, lhsTheme === rhsTheme, lhsTitle == rhsTitle, lhsValue == rhsValue {
+                    return true
+                } else {
+                    return false
+                }
+            case let .showUsernameInsteadOfNameInfo(lhsTheme, lhsText):
+                if case let .showUsernameInsteadOfNameInfo(rhsTheme, rhsText) = rhs, lhsTheme === rhsTheme, lhsText == rhsText {
+                    return true
+                } else {
+                    return false
+                }
         }
     }
     
@@ -393,6 +427,14 @@ private enum ThemeSettingsControllerEntry: ItemListNodeEntry {
                     arguments.toggleShowNextMediaOnTap(value)
                 }, tag: ThemeSettingsEntryTag.tapForNextMedia)
             case let .showNextMediaOnTapInfo(_, text):
+                return ItemListTextItem(presentationData: presentationData, text: .plain(text), sectionId: self.section)
+            case let .profileHeader(_, text):
+                return ItemListSectionHeaderItem(presentationData: presentationData, text: text, sectionId: self.section)
+            case let .showUsernameInsteadOfName(_, title, value):
+                return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: title, value: value, sectionId: self.section, style: .blocks, updated: { value in
+                    arguments.toggleShowUsernameInsteadOfName(value)
+                }, tag: ThemeSettingsEntryTag.showUsernameInsteadOfName)
+            case let .showUsernameInsteadOfNameInfo(_, text):
                 return ItemListTextItem(presentationData: presentationData, text: .plain(text), sectionId: self.section)
         }
     }
@@ -493,6 +535,10 @@ private func themeSettingsControllerEntries(
     }
     entries.append(.showNextMediaOnTap(presentationData.theme, strings.Appearance_ShowNextMediaOnTap, mediaSettings.showNextMediaOnTap))
     entries.append(.showNextMediaOnTapInfo(presentationData.theme, strings.Appearance_ShowNextMediaOnTapInfo))
+    
+    entries.append(.profileHeader(presentationData.theme, strings.Appearance_ProfileHeader.uppercased()))
+    entries.append(.showUsernameInsteadOfName(presentationData.theme, strings.Appearance_ShowUsernameInsteadOfName, presentationThemeSettings.showUsernameInsteadOfName))
+    entries.append(.showUsernameInsteadOfNameInfo(presentationData.theme, strings.Appearance_ShowUsernameInsteadOfNameInfo))
     
     return entries
 }
@@ -618,6 +664,10 @@ public func themeSettingsController(context: AccountContext, focusOnItemTag: The
     }, toggleShowNextMediaOnTap: { value in
         let _ = updateMediaDisplaySettingsInteractively(accountManager: context.sharedContext.accountManager, { current in
             return current.withUpdatedShowNextMediaOnTap(value)
+        }).start()
+    }, toggleShowUsernameInsteadOfName: { value in
+        let _ = updatePresentationThemeSettingsInteractively(accountManager: context.sharedContext.accountManager, { current in
+            return current.withUpdatedShowUsernameInsteadOfName(value)
         }).start()
     }, selectAppIcon: { icon in
         let _ = (context.engine.data.get(TelegramEngine.EngineData.Item.Peer.Peer(id: context.account.peerId))
@@ -1378,7 +1428,7 @@ public func themeSettingsController(context: AccountContext, focusOnItemTag: The
                     }
                 }
                 
-                return PresentationThemeSettings(theme: updatedTheme, themePreferredBaseTheme: themePreferredBaseTheme, themeSpecificAccentColors: themeSpecificAccentColors, themeSpecificChatWallpapers: themeSpecificChatWallpapers, useSystemFont: current.useSystemFont, fontSize: current.fontSize, listsFontSize: current.listsFontSize, chatBubbleSettings: current.chatBubbleSettings, automaticThemeSwitchSetting: updatedAutomaticThemeSwitchSetting, largeEmoji: current.largeEmoji, reduceMotion: current.reduceMotion)
+                return PresentationThemeSettings(theme: updatedTheme, themePreferredBaseTheme: themePreferredBaseTheme, themeSpecificAccentColors: themeSpecificAccentColors, themeSpecificChatWallpapers: themeSpecificChatWallpapers, useSystemFont: current.useSystemFont, fontSize: current.fontSize, listsFontSize: current.listsFontSize, chatBubbleSettings: current.chatBubbleSettings, automaticThemeSwitchSetting: updatedAutomaticThemeSwitchSetting, largeEmoji: current.largeEmoji, reduceMotion: current.reduceMotion, showUsernameInsteadOfName: current.showUsernameInsteadOfName)
             }).start()
             
             presentCrossfadeControllerImpl?(true)

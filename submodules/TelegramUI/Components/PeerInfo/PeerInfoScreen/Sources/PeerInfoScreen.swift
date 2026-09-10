@@ -6802,10 +6802,11 @@ public final class PeerInfoScreenImpl: ViewController, PeerInfoScreen, KeyShortc
             if let strongSelf = self {
                 let previousTheme = strongSelf.presentationData.theme
                 let previousStrings = strongSelf.presentationData.strings
+                let previousShowUsernameInsteadOfName = strongSelf.presentationData.showUsernameInsteadOfName
                 
                 strongSelf.presentationData = presentationData
                 
-                if previousTheme !== presentationData.theme || previousStrings !== presentationData.strings {
+                if previousTheme !== presentationData.theme || previousStrings !== presentationData.strings || previousShowUsernameInsteadOfName != presentationData.showUsernameInsteadOfName {
                     strongSelf.controllerNode.updatePresentationData(strongSelf.presentationData)
                     
                     if strongSelf.navigationItem.backBarButtonItem != nil {

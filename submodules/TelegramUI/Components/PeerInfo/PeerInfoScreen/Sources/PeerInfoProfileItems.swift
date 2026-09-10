@@ -203,6 +203,19 @@ func infoItems(
                     }
                 )
             )
+        } else {
+            items[currentPeerInfoSection]!.append(
+                PeerInfoScreenLabeledValueItem(
+                    id: ItemUsername,
+                    label: presentationData.strings.Profile_Username,
+                    text: presentationData.strings.Profile_UsernameNone,
+                    textColor: .primary,
+                    action: nil,
+                    requestLayout: { animated in
+                        interaction.requestLayout(animated)
+                    }
+                )
+            )
         }
         
         if let cachedData = data.cachedData as? CachedUserData {

@@ -267,7 +267,8 @@ public final class LiveLocationHeaderPanelComponent: Component {
                     nameDisplayOrder: .firstLast,
                     nameSortOrder: .firstLast,
                     reduceMotion: false,
-                    largeEmoji: false
+                    largeEmoji: false,
+                    showUsernameInsteadOfName: false
                 ))
             }
             

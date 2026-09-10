@@ -930,6 +930,7 @@
 
 "Contacts.GlobalSearch" = "Global Search";
 "Profile.Username" = "username";
+"Profile.UsernameNone" = "None";
 "Settings.Username" = "Username";
 "Settings.UsernameEmpty" = "Add";
 
@@ -9235,6 +9236,9 @@ Sorry for the inconvenience.";
 
 "Appearance.ShowNextMediaOnTap" = "Show Next Media on Tap";
 "Appearance.ShowNextMediaOnTapInfo" = "Tap near the edge of the screen while viewing media to navigate between photos.";
+"Appearance.ProfileHeader" = "Profile";
+"Appearance.ShowUsernameInsteadOfName" = "Show Username Instead of Name";
+"Appearance.ShowUsernameInsteadOfNameInfo" = "Profiles will show @username as the title instead of the display name. The name is used when there is no username.";
 
 "WebApp.LaunchMoreInfo" = "More about this bot";
 "WebApp.LaunchConfirmation" = "To launch this web app, you will connect to its website.";
